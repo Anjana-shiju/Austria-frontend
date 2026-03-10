@@ -1,0 +1,97 @@
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-badge {
+  padding: 6px 16px;
+  background: var(--austria-red-light);
+  border: 1px solid rgba(237, 41, 57, 0.3);
+  border-radius: 100px;
+  color: var(--austria-red);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  background: var(--saffron);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.stat-card .stat-icon {
+  font-size: 1.5rem;
+  color: var(--saffron);
+  margin-bottom: 8px;
+}
+
+.stat-card.pending .stat-icon,
+.stat-card.pending .stat-number { color: var(--warning); }
+
+.stat-card.resolved .stat-icon,
+.stat-card.resolved .stat-number { color: var(--success); }
+
+.quick-enquiry { margin-bottom: 12px; }
+.quick-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-enquiries { display: flex; flex-direction: column; gap: 20px; }
+
+.admin-enquiry-card { }
+
+.admin-respond { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+.admin-respond .btn { align-self: flex-end; }
+
+/* Users Table */
+.users-table-wrap {
+  background: var(--dark-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.users-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--dark-2);
+}
+
+.users-table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.users-table tr:last-child td { border-bottom: none; }
+
+.users-table tr:hover td { background: var(--dark-3); }

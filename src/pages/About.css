@@ -1,0 +1,88 @@
+.about-hero {
+  text-align: center;
+  padding: 40px;
+}
+
+.about-flags {
+  font-size: 2rem;
+  letter-spacing: 8px;
+  margin-bottom: 16px;
+}
+
+.about-hero h2 {
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+}
+
+.about-hero p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.about-grid .card h3 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.about-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.about-list li {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  background: var(--dark-3);
+  border-radius: 8px;
+}
+
+.admin-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--saffron-glow);
+  border: 1px solid rgba(255,107,0,0.3);
+  border-radius: var(--radius);
+  color: var(--saffron);
+  font-size: 0.88rem;
+  font-weight: 500;
+  word-break: break-all;
+  transition: var(--transition);
+}
+
+.admin-contact-btn:hover {
+  background: rgba(255,107,0,0.2);
+}
+
+.about-footer {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px;
+}
+
+.about-footer p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .about-grid { grid-template-columns: 1fr; }
+}

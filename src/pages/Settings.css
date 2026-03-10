@@ -1,0 +1,21 @@
+.profile-avatar-lg {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, var(--saffron), var(--saffron-light));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.settings-note {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
