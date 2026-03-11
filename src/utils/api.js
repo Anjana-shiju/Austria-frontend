@@ -34,7 +34,9 @@ export const updateProfile = (data) => API.put('/auth/profile', data);
 
 // ─── Announcements ──────────────────────────────────
 export const getAnnouncements = (params) => API.get('/announcements', { params });
-export const createAnnouncement = (data) => API.post('/announcements', data);
+export const createAnnouncement = (data) => API.post('/announcements', data, {
+  headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {}
+});
 export const deleteAnnouncement = (id) => API.delete(`/announcements/${id}`);
 
 // ─── Enquiries ──────────────────────────────────────

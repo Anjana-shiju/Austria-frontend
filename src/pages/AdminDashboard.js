@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { getAdminStats, getAllEnquiries, respondToEnquiry, createAnnouncement, getAllUsers, deleteUser } from '../utils/api';
-import { FiUsers, FiMessageSquare, FiCheckCircle, FiBell, FiTrash2, FiSend } from 'react-icons/fi';
+import { useState, useEffect, useRef } from 'react';
+import { getAdminStats, getAllEnquiries, respondToEnquiry, getAllUsers, deleteUser } from '../utils/api';
+import { createAnnouncement } from '../utils/api';
+import { FiUsers, FiMessageSquare, FiCheckCircle, FiBell, FiTrash2, FiSend, FiImage, FiX } from 'react-icons/fi';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import './Admin.css';
@@ -11,9 +12,14 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [responses, setResponses] = useState({});
-  const [annForm, setAnnForm] = useState({ title: '', content: '', category: 'General' });
-  const [posting, setPosting] = useState(false);
   const [respondingId, setRespondingId] = useState(null);
+  const [posting, setPosting] = useState(false);
+
+  // Announcement form
+  const [annForm, setAnnForm] = useState({ title: '', content: '', category: 'General' });
+  const [annImage, setAnnImage] = useState(null);
+  const [annPreview, setAnnPreview] = useState(null);
+  const fileRef = useRef();
 
   useEffect(() => {
     fetchStats();
@@ -50,13 +56,37 @@ export default function AdminDashboard() {
     finally { setRespondingId(null); }
   };
 
+  // Image select
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) return toast.error('Image must be under 10MB');
+    setAnnImage(file);
+    setAnnPreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setAnnImage(null);
+    setAnnPreview(null);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
   const handlePostAnnouncement = async (e) => {
     e.preventDefault();
     if (!annForm.title || !annForm.content) return toast.error('Fill title and content');
     setPosting(true);
     try {
-      await createAnnouncement(annForm);
+      // Use FormData if image is attached
+      const fd = new FormData();
+      fd.append('title', annForm.title);
+      fd.append('content', annForm.content);
+      fd.append('category', annForm.category);
+      if (annImage) fd.append('image', annImage);
+
+      await createAnnouncement(fd);
       setAnnForm({ title: '', content: '', category: 'General' });
+      setAnnImage(null);
+      setAnnPreview(null);
       toast.success('Announcement posted! 📢');
     } catch (err) { toast.error('Failed to post announcement'); }
     finally { setPosting(false); }
@@ -120,7 +150,6 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Recent pending */}
             {pending.length > 0 && (
               <div>
                 <h2 className="section-title" style={{ marginBottom: 16 }}>⚡ Needs Attention ({pending.length})</h2>
@@ -132,9 +161,7 @@ export default function AdminDashboard() {
                       <strong>{enq.user?.name}</strong>
                     </div>
                     <p className="enquiry-subject">{enq.subject}</p>
-                    <button className="btn btn-primary btn-sm" onClick={() => handleTabChange('enquiries')}>
-                      Respond →
-                    </button>
+                    <button className="btn btn-primary btn-sm" onClick={() => handleTabChange('enquiries')}>Respond →</button>
                   </div>
                 ))}
               </div>
@@ -145,9 +172,6 @@ export default function AdminDashboard() {
         {/* Enquiries */}
         {activeTab === 'enquiries' && (
           <div className="fade-in">
-            <div className="tabs" style={{ marginBottom: 24 }}>
-              <button className="tab active">Pending ({pending.length})</button>
-            </div>
             {pending.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">✅</div>
@@ -187,22 +211,48 @@ export default function AdminDashboard() {
             <div className="card">
               <h2 className="section-title" style={{ marginBottom: 24 }}>Post Announcement</h2>
               <form onSubmit={handlePostAnnouncement}>
+
                 <div className="form-group">
                   <label className="form-label">Title *</label>
                   <input className="form-input" placeholder="Announcement title"
                     value={annForm.title} onChange={e => setAnnForm({ ...annForm, title: e.target.value })} required />
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">Category</label>
-                  <select className="form-input" value={annForm.category} onChange={e => setAnnForm({ ...annForm, category: e.target.value })}>
+                  <select className="form-input" value={annForm.category}
+                    onChange={e => setAnnForm({ ...annForm, category: e.target.value })}>
                     {['General', 'Admission', 'Visa', 'Housing', 'Events'].map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">Content *</label>
                   <textarea className="form-input" rows={6} placeholder="Write the full announcement..."
                     value={annForm.content} onChange={e => setAnnForm({ ...annForm, content: e.target.value })} required />
                 </div>
+
+                {/* Image Upload */}
+                <div className="form-group">
+                  <label className="form-label">Image (Optional)</label>
+                  {annPreview ? (
+                    <div className="ann-img-preview">
+                      <img src={annPreview} alt="preview" />
+                      <button type="button" className="ann-img-remove" onClick={removeImage}>
+                        <FiX /> Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="ann-img-upload" onClick={() => fileRef.current.click()}>
+                      <FiImage />
+                      <span>Click to add image</span>
+                      <small>JPG, PNG · Max 10MB</small>
+                    </div>
+                  )}
+                  <input ref={fileRef} type="file" accept="image/*"
+                    style={{ display: 'none' }} onChange={handleImageSelect} />
+                </div>
+
                 <button type="submit" className="btn btn-primary btn-lg" disabled={posting}>
                   {posting ? 'Posting...' : <><FiBell /> Post Announcement</>}
                 </button>
