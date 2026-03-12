@@ -105,25 +105,40 @@ export default function Chat() {
     setAudioURL(null);
   };
 
-  const sendVoice = async () => {
-    if (!audioBlob) return;
-    setSending(true);
-    try {
-      const fd = new FormData();
-      fd.append('audio', audioBlob, 'voice.webm');
-      const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_URL}/chat/voice`, fd, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
-      });
-      sendMessage(`🎤 [voice]${res.data.url}`);
-      setAudioBlob(null);
-      setAudioURL(null);
-      toast.success('Voice message sent!');
-    } catch (err) {
-      toast.error('Failed to send voice message');
-    } finally { setSending(false); }
-  };
+const sendVoice = async () => {
+  if (!audioBlob) return;
 
+  setSending(true);
+
+  try {
+    const fd = new FormData();
+    fd.append('audio', audioBlob, 'voice.webm');
+
+    const token = localStorage.getItem('token');
+
+    const res = await axios.post(`${API_URL}/chat/voice`, fd, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    const savedMsg = res.data.message;
+
+    // UI update instantly
+    setMessages(prev => [...prev, savedMsg]);
+
+    setAudioBlob(null);
+    setAudioURL(null);
+
+    toast.success('Voice message sent!');
+
+  } catch (err) {
+    toast.error('Failed to send voice message');
+  } finally {
+    setSending(false);
+  }
+};
   // ── Delete (admin only) ──
   const handleDelete = async (id) => {
     try {
@@ -155,7 +170,9 @@ export default function Chat() {
     return acc;
   }, []);
 
-  const isVoice = (msg) => msg.message?.startsWith('🎤 [voice]');
+const isVoice = (msg) => {
+  return msg.type === 'voice' || msg.message?.includes('[voice]');
+};
 
   const renderContent = (msg) => {
     if (isVoice(msg)) {
@@ -302,7 +319,7 @@ export default function Chat() {
           <div className="chat-input-wrap">
             <textarea
               className="chat-input"
-              placeholder="Type a message... (Enter to send)"
+              placeholder="Type a message... "
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
