@@ -55,19 +55,16 @@
 
 .admin-enquiries { display: flex; flex-direction: column; gap: 20px; }
 
-.admin-enquiry-card { }
-
 .admin-respond { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
 .admin-respond .btn { align-self: flex-end; }
 
-/* Users Table */
+/* ── Users Table ── */
 .users-table-wrap {
   background: var(--dark-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow: hidden; /* no horizontal scroll on wrapper */
 }
-
 
 .users-table {
   width: 100%;
@@ -76,7 +73,7 @@
 }
 
 .users-table th {
-  padding: 14px 20px;
+  padding: 14px 16px;
   text-align: left;
   font-size: 0.75rem;
   font-weight: 700;
@@ -85,20 +82,68 @@
   color: var(--text-muted);
   border-bottom: 1px solid var(--border);
   background: var(--dark-2);
+  white-space: nowrap;
 }
 
 .users-table td {
-  padding: 14px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
+  word-break: break-word;
 }
 
 .users-table tr:last-child td { border-bottom: none; }
-
 .users-table tr:hover td { background: var(--dark-3); }
 
-/* Add these styles to your existing Admin.css */
+/* Mobile — stack cards instead of table */
+@media (max-width: 768px) {
+  .users-table-wrap { overflow: hidden; }
 
+  .users-table thead { display: none; }
+
+  .users-table,
+  .users-table tbody,
+  .users-table tr,
+  .users-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .users-table tr {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    padding: 16px;
+    background: var(--dark-card);
+  }
+
+  .users-table td {
+    padding: 4px 0;
+    border: none;
+    font-size: 0.88rem;
+  }
+
+  /* Label each cell */
+  .users-table td:nth-child(1)::before { content: "Name: "; font-weight: 700; color: var(--text-secondary); }
+  .users-table td:nth-child(2)::before { content: "Email: "; font-weight: 700; color: var(--text-secondary); }
+  .users-table td:nth-child(3)::before { content: "University: "; font-weight: 700; color: var(--text-secondary); }
+  .users-table td:nth-child(4)::before { content: "Joined: "; font-weight: 700; color: var(--text-secondary); }
+  .users-table td:nth-child(5)::before { content: "Role: "; font-weight: 700; color: var(--text-secondary); }
+  .users-table td:nth-child(6) { margin-top: 8px; }
+
+  /* Stats grid */
+  .grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Tabs scroll on mobile */
+  .tabs { overflow-x: auto; flex-wrap: nowrap; }
+  .tab { white-space: nowrap; }
+}
+
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* ── Announcement Image Upload ── */
 .ann-img-upload {
   display: flex;
   flex-direction: column;
@@ -121,14 +166,14 @@
   position: relative;
   border-radius: var(--radius);
   overflow: hidden;
-  max-height: 240px;
 }
 
 .ann-img-preview img {
   width: 100%;
-  height: 240px;
+  height: 220px;
   object-fit: cover;
   border-radius: var(--radius);
+  display: block;
 }
 
 .ann-img-remove {
@@ -136,43 +181,10 @@
   top: 10px; right: 10px;
   display: flex; align-items: center; gap: 4px;
   padding: 6px 12px;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.75);
   color: white;
   border-radius: 8px;
   font-size: 0.82rem;
   transition: background 0.2s;
 }
-.ann-img-remove:hover { background: rgba(239,68,68,0.8); }
-
-@media (max-width: 768px) {
-  .users-table thead { display: none; }
-
-  .users-table,
-  .users-table tbody,
-  .users-table tr,
-  .users-table td { display: block; width: 100%; }
-
-  .users-table tr {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 12px;
-    padding: 16px;
-  }
-
-  .users-table td {
-    padding: 4px 0;
-    border: none;
-    font-size: 0.85rem;
-  }
-
-  .users-table td:nth-child(1)::before { content: "Name: "; font-weight: 700; color: var(--text-secondary); }
-  .users-table td:nth-child(2)::before { content: "Email: "; font-weight: 700; color: var(--text-secondary); }
-  .users-table td:nth-child(3)::before { content: "University: "; font-weight: 700; color: var(--text-secondary); }
-  .users-table td:nth-child(4)::before { content: "Joined: "; font-weight: 700; color: var(--text-secondary); }
-  .users-table td:nth-child(5)::before { content: "Role: "; font-weight: 700; color: var(--text-secondary); }
-  .users-table td:nth-child(6) { margin-top: 8px; }
-
-  .tabs { overflow-x: auto; flex-wrap: nowrap; }
-  .tab { white-space: nowrap; }
-  .grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
-}
+.ann-img-remove:hover { background: rgba(239,68,68,0.85); }

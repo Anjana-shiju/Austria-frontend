@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAdminStats, getAllEnquiries, respondToEnquiry, getAllUsers, deleteUser } from '../utils/api';
-import { createAnnouncement } from '../utils/api';
+import { getAdminStats, getAllEnquiries, getAnnouncements, deleteAnnouncement, respondToEnquiry, getAllUsers, deleteUser, createAnnouncement } from '../utils/api';
 import { FiUsers, FiMessageSquare, FiCheckCircle, FiBell, FiTrash2, FiSend, FiImage, FiX } from 'react-icons/fi';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -14,8 +13,7 @@ export default function AdminDashboard() {
   const [responses, setResponses] = useState({});
   const [respondingId, setRespondingId] = useState(null);
   const [posting, setPosting] = useState(false);
-
-  // Announcement form
+  const [announcements, setAnnouncements] = useState([]);
   const [annForm, setAnnForm] = useState({ title: '', content: '', category: 'General' });
   const [annImage, setAnnImage] = useState(null);
   const [annPreview, setAnnPreview] = useState(null);
@@ -38,9 +36,14 @@ export default function AdminDashboard() {
     try { const res = await getAllUsers(); setUsers(res.data.users); } catch (e) { console.error(e); }
   };
 
+  const fetchAnnouncements = async () => {
+    try { const res = await getAnnouncements(); setAnnouncements(res.data.announcements); } catch (e) { console.error(e); }
+  };
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     if (tab === 'users' && !users.length) fetchUsers();
+    if (tab === 'announcements') fetchAnnouncements();
   };
 
   const handleRespond = async (id) => {
@@ -56,7 +59,6 @@ export default function AdminDashboard() {
     finally { setRespondingId(null); }
   };
 
-  // Image select
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -71,23 +73,31 @@ export default function AdminDashboard() {
     if (fileRef.current) fileRef.current.value = '';
   };
 
+  const handleDeleteAnnouncement = async (id) => {
+    if (!window.confirm('Delete this announcement?')) return;
+    try {
+      await deleteAnnouncement(id);
+      setAnnouncements(announcements.filter(a => a._id !== id));
+      toast.success('Announcement deleted');
+    } catch (err) { toast.error('Failed to delete'); }
+  };
+
   const handlePostAnnouncement = async (e) => {
     e.preventDefault();
     if (!annForm.title || !annForm.content) return toast.error('Fill title and content');
     setPosting(true);
     try {
-      // Use FormData if image is attached
       const fd = new FormData();
       fd.append('title', annForm.title);
       fd.append('content', annForm.content);
       fd.append('category', annForm.category);
       if (annImage) fd.append('image', annImage);
-
       await createAnnouncement(fd);
       setAnnForm({ title: '', content: '', category: 'General' });
       setAnnImage(null);
       setAnnPreview(null);
       toast.success('Announcement posted! 📢');
+      fetchAnnouncements();
     } catch (err) { toast.error('Failed to post announcement'); }
     finally { setPosting(false); }
   };
@@ -115,11 +125,44 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="tabs">
+        <div style={{
+          display: 'flex',
+          gap: '4px',
+          background: 'var(--dark-2)',
+          padding: '4px',
+          borderRadius: 'var(--radius)',
+          marginBottom: '28px',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          flexWrap: 'nowrap',
+          width: '100%'
+        }}>
           {['overview', 'enquiries', 'announcements', 'users'].map(t => (
-            <button key={t} className={`tab ${activeTab === t ? 'active' : ''}`} onClick={() => handleTabChange(t)}>
+            <button
+              key={t}
+              onClick={() => handleTabChange(t)}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                background: activeTab === t ? 'var(--dark-card)' : 'transparent',
+                color: activeTab === t ? 'var(--text-primary)' : 'var(--text-muted)',
+                boxShadow: activeTab === t ? '0 2px 8px rgba(0,0,0,0.3)' : 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
               {t.charAt(0).toUpperCase() + t.slice(1)}
-              {t === 'enquiries' && pending.length > 0 && <span className="tab-badge">{pending.length}</span>}
+              {t === 'enquiries' && pending.length > 0 && (
+                <span className="tab-badge">{pending.length}</span>
+              )}
             </button>
           ))}
         </div>
@@ -208,16 +251,15 @@ export default function AdminDashboard() {
         {/* Announcements */}
         {activeTab === 'announcements' && (
           <div className="fade-in">
-            <div className="card">
+            {/* Post form */}
+            <div className="card" style={{ marginBottom: 32 }}>
               <h2 className="section-title" style={{ marginBottom: 24 }}>Post Announcement</h2>
               <form onSubmit={handlePostAnnouncement}>
-
                 <div className="form-group">
                   <label className="form-label">Title *</label>
                   <input className="form-input" placeholder="Announcement title"
                     value={annForm.title} onChange={e => setAnnForm({ ...annForm, title: e.target.value })} required />
                 </div>
-
                 <div className="form-group">
                   <label className="form-label">Category</label>
                   <select className="form-input" value={annForm.category}
@@ -225,14 +267,11 @@ export default function AdminDashboard() {
                     {['General', 'Admission', 'Visa', 'Housing', 'Events'].map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
-
                 <div className="form-group">
                   <label className="form-label">Content *</label>
                   <textarea className="form-input" rows={6} placeholder="Write the full announcement..."
                     value={annForm.content} onChange={e => setAnnForm({ ...annForm, content: e.target.value })} required />
                 </div>
-
-                {/* Image Upload */}
                 <div className="form-group">
                   <label className="form-label">Image (Optional)</label>
                   {annPreview ? (
@@ -249,15 +288,48 @@ export default function AdminDashboard() {
                       <small>JPG, PNG · Max 10MB</small>
                     </div>
                   )}
-                  <input ref={fileRef} type="file" accept="image/*"
-                    style={{ display: 'none' }} onChange={handleImageSelect} />
+                  <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageSelect} />
                 </div>
-
                 <button type="submit" className="btn btn-primary btn-lg" disabled={posting}>
                   {posting ? 'Posting...' : <><FiBell /> Post Announcement</>}
                 </button>
               </form>
             </div>
+
+            {/* Announcements list */}
+            {announcements.length > 0 && (
+              <div>
+                <h3 className="section-title" style={{ marginBottom: 16 }}>
+                  Posted Announcements ({announcements.length})
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {announcements.map(ann => (
+                    <div className="card" key={ann._id} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                          <span className={`badge badge-${ann.category?.toLowerCase()}`}>{ann.category}</span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                            {format(new Date(ann.createdAt), 'MMM dd, yyyy')}
+                          </span>
+                        </div>
+                        <h4 style={{ fontFamily: 'DM Sans', fontSize: '1rem', marginBottom: 6 }}>{ann.title}</h4>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem',
+                          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {ann.content}
+                        </p>
+                      </div>
+                      {ann.image && (
+                        <img src={ann.image} alt={ann.title}
+                          style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+                      )}
+                      <button className="btn btn-danger btn-sm" onClick={() => handleDeleteAnnouncement(ann._id)}>
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -298,6 +370,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

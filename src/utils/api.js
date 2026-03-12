@@ -58,6 +58,8 @@ export const deletePhoto = (id) => API.delete(`/gallery/${id}`);
 export const getAdminStats = () => API.get('/admin/stats');
 export const getAllUsers = () => API.get('/admin/users');
 export const deleteUser = (id) => API.delete(`/admin/users/${id}`);
+// ഈ line add ചെയ്യൂ:
+export const deleteChatMessage = (id) => API.delete(`/chat/${id}`);
 
 // ─── Chat ────────────────────────────────────────────
 export const getChatHistory = () => API.get('/chat/history');

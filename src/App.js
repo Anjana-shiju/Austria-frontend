@@ -5,6 +5,8 @@ import { SocketProvider } from './context/SocketContext';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import { ProtectedRoute, AdminRoute, GuestRoute } from './components/common/ProtectedRoute';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 // Pages
 import Home from './pages/Home';
@@ -20,6 +22,7 @@ import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
 
 import './styles/global.css';
+import Profile from './pages/Profile';
 
 function AppLayout({ children, noFooter }) {
   return (
@@ -31,9 +34,19 @@ function AppLayout({ children, noFooter }) {
   );
 }
 
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+    <ScrollToTop />   
       <AuthProvider>
         <SocketProvider>
           <Toaster
@@ -56,6 +69,7 @@ export default function App() {
             <Route path="/about" element={<AppLayout><About /></AppLayout>} />
             <Route path="/announcements" element={<AppLayout><Announcements /></AppLayout>} />
             <Route path="/gallery" element={<AppLayout><Gallery /></AppLayout>} />
+            
 
             {/* Guest only */}
             <Route path="/login" element={<GuestRoute><AppLayout><Login /></AppLayout></GuestRoute>} />
@@ -66,6 +80,8 @@ export default function App() {
             <Route path="/ask-doubt" element={<ProtectedRoute><AppLayout><AskDoubt /></AppLayout></ProtectedRoute>} />
             <Route path="/my-enquiries" element={<ProtectedRoute><AppLayout><MyEnquiries /></AppLayout></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
+            
 
             {/* Admin */}
             <Route path="/admin" element={<AdminRoute><AppLayout><AdminDashboard /></AppLayout></AdminRoute>} />
