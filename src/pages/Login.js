@@ -84,7 +84,7 @@ export default function Login() {
           </div>
 
           <div className="auth-forgot">
-            <a href="mailto:jerinjohnbusiness@gmail.com" className="forgot-link">
+            <a href="mailto:indausconnect@gmail.com" className="forgot-link">
               Forgot password? Contact admin
             </a>
           </div>

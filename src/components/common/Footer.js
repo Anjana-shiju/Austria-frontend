@@ -41,9 +41,9 @@ export default function Footer() {
 
           <div className="footer-links-group">
             <h4>Contact Admin</h4>
-            <a href="mailto:jerinjohnbusiness@gmail.com" className="footer-email">
+            <a href="mailto:indausconnect@gmail.com" className="footer-email">
               <FiMail />
-              jerinjohnbusiness@gmail.com
+             indausconnect@gmail.com
             </a>
             <p className="footer-note">Queries answered within 24 hours</p>
           </div>
