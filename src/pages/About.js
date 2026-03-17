@@ -40,7 +40,7 @@ export default function About() {
               For password resets, account issues, or any other help:
             </p>
             <a href="mailto:jerinjohnbusiness@gmail.com" className="admin-contact-btn">
-              <FiMail /> jerinjohnbusiness@gmail.com
+              <FiMail />indausconnect@gmail.com
             </a>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 12 }}>
               Responses within 24 hours
